@@ -37,7 +37,7 @@ By following the SDLC workflow, organizations can ensure that *software is devel
 ## CI/CD Pipeline
 
 This is a showcase of a CI/CD pipeline where changes to the software are made locally, sent to GitHub and Further to Jenkins for automation, and finally delivered to AWS (our production stage).
-- The **CI** section of the Pipeline is represented by the local host and GitHub, as we will build the code on our local host and share it with the rest of the team on GitHub using GIT (version control).
+- The **CI** section of the Pipeline is represented by the local host and GitHub, as we will build the code on our local host and merge it with the code from the rest of the team on GitHub using GIT (version control).
 - The **CD** section of the Pipeline is achieved when GitHub communicates with Jenkins, sending the code for tests. In Jenkins we communicate strictly with the Master Node, however, all the tests are run via the Agent Node, which is a secure, isolated testing environment. 
 1. If the tests are successful, positive feedback will be sent back to the left end of the Pipeline and the process will continue by having the Master Node in Jenkins send the code further through the Pipeline to AWS (Production stage) and deliver the fully functional and error-free software to our customer.
 2. If the tests are unsuccessful, according feedback will be sent to the left end of the Pipeline where a full log is accessible and we can identify what went wrong and what needs adjustments. 
