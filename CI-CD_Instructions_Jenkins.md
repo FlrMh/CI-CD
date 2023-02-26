@@ -168,6 +168,48 @@ b. Now, we need to go to `GitHub`, to the repo where our `app` folder is, and go
 
 - If everything went well, we should now be able to push changes to our `GitHub` and automatically see jobs being triggered in `Jenkins`.
 
+---
+
+## Step 2: Setting up the CD part of the Pipeline between Jenkins and AWS
+
+- Firstly, we will need to set up an EC2 instance.
+- If unsure how to achieve that, please follow the steps on:
+
+[Setting up an EC2 instance](https://github.com/FlrMh/Cloud_Computing_with_AWS/blob/main/AWS_instructions.md)
+
+---
+
+### Few things to remember for AWS instance!!!
+1. The Security Group for this instance should allow `Jenkins` on `port 22`, so remember to use the IP address of Jenkins in the https link of the Jenkins page. 
+- Also, allow `port 80`, `port 3000` and `port 8080`.
+
+![](images/ports.PNG)
+
+2. Save the `devops-tech201` .pem file, the key for EC2 instances, in the local host and then add it to `Jenkins` for when we will connect the EC2 instance with Jenkins.
+
+- Anything else, in terms of the EC2 instance ocnfiguration, should be the same as previously made. 
+---
+
+- Now, in `Jenkins`, we need to create a new item. 
+- Set the name as pick a `freestyle project`.
+- Set the description, connect it to the `GitHub` repo as previously made, with the `HTTPS` and `SSH`.
+- No need to restrict the environemtn as we are not testing anything at the moment. 
+- Use `*/master` branch to build.
+- `Build triggers` to `"Build only if build is stable"` and specify the previous job we made where we check that the code is tested and runs as expected.
+- Add the `SSH` authentication path and use the `devops-tech201` key for the EC2 instance. This will allow `Jenkins` to be the one that communicates with the EC2 instance so we would not have to do it. 
+- Sync the required files using the Command shell section with the following commands:
+```
+scp -o "StrictHostKeyChecking=no" -r app ubuntu@ip-of-EC2-instance:/home/ubuntu
+ssh -o "StrictHostKeychecking=no" ubuntu@ip-of-EC2-instance <<EOF
+    sudo bash ./app/provision.sh
+    cd app
+    sudo pm2 kill
+    sudo pm2 start app.js
+
+EOF
+```
+
+
 
 
 
