@@ -183,8 +183,12 @@ git checkout -b <branch-name>
 git push <remote-name> <branch-name> 
 # remote-name will generally be 'origin'
 ```
+- Once the dev branch is done, change the configuration of the `CI` job in `Jenkins` to listen to the `dev branch` instead of the `main branch`.
+
+![](images/job1-branch.PNG)
+
 - To test that the branch is set correctly, make a change to any file in the repo, and push it to GitHub. You should able to currently see the changes only on the `dev branch`, not on the `main branch`, as they are not yet merged. 
-- Now, we need to create the `Jenkins` job. 
+- Now, we need to create a second `Jenkins` job that will merge the `dev branch` with the `main branch`. 
 - Create a `new item` in Jenkins, and select `freestyle project`. 
 - The configurations should be similar to the ones described above. Onnly a few things should be changed:
 
@@ -232,22 +236,20 @@ git push <remote-name> <branch-name>
 - Set the name as pick a `freestyle project`.
 - Set the description, connect it to the `GitHub` repo as previously made, with the `HTTPS` and `SSH`.
 - No need to restrict the environemtn as we are not testing anything at the moment. 
-- Use `*/master` branch to build.
+- Use `*/main` branch to build.
+
+![](images/job3-branch.PNG)
+
 - `Build triggers` to `"Build only if build is stable"` and specify the previous job we made where we check that the code is tested and runs as expected.
+
+![](images/job3-trigger.PNG)
+
 - Add the `SSH` authentication path and use the `devops-tech201` key for the EC2 instance. This will allow `Jenkins` to be the one that communicates with the EC2 instance so we would not have to do it. 
-- Sync the required files using the Command shell section with the following commands:
+
+![](images/job3-ssh.PNG)
+
+- Sync the required files using the `Command shell` section with the following commands:
 ```
-scp -o "StrictHostKeyChecking=no" -r app ubuntu@ip-of-EC2-instance:/home/ubuntu
-ssh -o "StrictHostKeychecking=no" ubuntu@ip-of-EC2-instance <<EOF
-    sudo bash ./app/provision.sh
-    cd app
-    sudo pm2 kill
-    sudo pm2 start app.js
-
-EOF
-
-# or
-
 rsync -avz -e "ssh -o StrictHostKeyChecking=no" app ubuntu@ip:/home/ubuntu
 ssh -o "StrictHostKeyChecking=no" ubuntu@ip <<EOF
     sudo bash ./app/provision.sh
@@ -258,7 +260,37 @@ ssh -o "StrictHostKeyChecking=no" ubuntu@ip <<EOF
 EOF
 
 ```
+![](images/job3-build.PNG)
+
+- If everything went well and pipeline ran correctly, any changes made locally through our `dev` branch should be going through the entire pipeline, which will end with the changes made locally being deployed in the Production environment (our EC2 instance).
+- In my case, I will make some changes within the home page of the `app` using my newly created `dev-branch` branch.
+- In order to achieve this, I used the following commands:
+
+```
+cd app
+
+cd views
+
+nano index.ejs
+# in the endex.ejs file we have the configuration for the homepage of our app
+
+# my changes will add 2 subheadings to the app homepage as you can see in the screenshot below
+```
+
+![](images/local-changes.PNG)
 
 
+- Then, I ran the commands that run the code through the `Git` workflow:
+```
+git add .
+git commit -m "my text"
+git push -u origin dev-branch
+```
+- As my changes were sent to `GitHub`, the Pipeline will now start working as `Jenkins` is listening to the changes I make to my repo on `GitHub` through the Webhook we have set.
+- Each job will now individually be triggered as the Pipeline has been instructed to.
+- Lastly, as my code was all tested successfully, my branches were then merged (the changes made on `dev-branch` were merged onto the `main` branch), and the main build has been delivered and automatically deployed onto my EC2 instance.
+- The result will be to see the changes that I made locally now being successfully added onto my `app` homepage.
 
+![](images/piepline-completed.PNG)
 
+- Happy days! My Pipeline automated the process of integrating, testing, delivering and deploying the code for my `app`.
