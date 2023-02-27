@@ -245,8 +245,19 @@ ssh -o "StrictHostKeychecking=no" ubuntu@ip-of-EC2-instance <<EOF
     sudo pm2 start app.js
 
 EOF
-```
 
+# or
+
+rsync -avz -e "ssh -o StrictHostKeyChecking=no" app ubuntu@ip:/home/ubuntu
+ssh -o "StrictHostKeyChecking=no" ubuntu@ip <<EOF
+    sudo bash ./app/provision.sh
+    cd app
+    npm install
+    nohup npm start 2>/dev/null 1>/dev/null&
+
+EOF
+
+```
 
 
 
