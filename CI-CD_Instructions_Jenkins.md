@@ -172,10 +172,48 @@ b. Now, we need to go to `GitHub`, to the repo where our `app` folder is, and go
 
 ## Step 2: Setting up the CD part of the Pipeline between Jenkins and AWS
 
-- Firstly, we will need to set up an EC2 instance.
-- If unsure how to achieve that, please follow the steps on:
+![](images/CD-part.png)
 
-[Setting up an EC2 instance](https://github.com/FlrMh/Cloud_Computing_with_AWS/blob/main/AWS_instructions.md)
+- For the `CD` part of the Pipeline, we will follow the above diagram.
+- So, Job 1 requires us to set up a `dev` branch on our local host and on GitHub.
+- To achieve that, please go to yor `Git Bash` terminal on your local host and run the following:
+```
+git checkout -b <branch-name>
+
+git push <remote-name> <branch-name> 
+# remote-name will generally be 'origin'
+```
+- To test that the branch is set correctly, make a change to any file in the repo, and push it to GitHub. You should able to currently see the changes only on the `dev branch`, not on the `main branch`, as they are not yet merged. 
+- Now, we need to create the `Jenkins` job. 
+- Create a `new item` in Jenkins, and select `freestyle project`. 
+- The configurations should be similar to the ones described above. Onnly a few things should be changed:
+
+1.
+
+ ![](images/dev-branch.PNG)
+
+2.
+
+![](images/dev-branch-build.PNG)
+
+3. 
+
+![](images/dev-branch-post-actions.PNG)
+
+- Now, every time we push a change through out `dev` branch, if the code tests are successful, the changes to the `dev` branch should be merged onto the `main` branch. 
+
+- The changes I have made are visible below, screenshotted on my `main` branch in GitHub. Th changes were pushed through my `dev-branch`, which triggered the job in `Jenkins`, which then merged the branches together.
+
+![](images/change-to-main.PNG)
+
+---
+
+- As Job 1 and Job 2 from the diagram have been achieved, it is time for Job 3: pushing the code to AWS.
+
+- Firstly, we will need to set up an EC2 instance.
+- If unsure how to achieve that, please follow the steps on the following link:
+
+    [Setting up an EC2 instance](https://github.com/FlrMh/Cloud_Computing_with_AWS/blob/main/AWS_instructions.md)
 
 ---
 
